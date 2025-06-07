@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 import joblib  # For saving/loading the model
 
-st.title('💹 Credit Risk Analysis App')
+st.title('💹 Bank Deposit Subscription Predictor')
 
 st.info('This app predicts the likelihood of loan default given certain parameters!')
 
