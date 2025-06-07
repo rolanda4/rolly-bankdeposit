@@ -12,30 +12,35 @@ st.title('💹 Bank Deposit Subscription Predictor')
 
 st.info('This app predicts the likelihood that a person will subscribe to a bank deposit given certain parameters!')
 
-# Load and process data
+# Load data
 dup_add = pd.read_csv('https://raw.githubusercontent.com/rolanda4/stream/refs/heads/main/cleaned_add_full.csv')
 
+# Split features and target
 features_to_drop2 = ['default', 'contact', 'previous']
-X2_train = train_df.drop(columns=features_to_drop2 + ['y'])
-y2_train = train_df["y"]
+X = dup_add.drop(columns=features_to_drop2 + ['y'])
+y = dup_add["y"]
 
-#identify categorical and numeric variables
+# Identify categorical and numeric columns
 categorical_cols = X.select_dtypes(include=['object']).columns.tolist()
 numeric_cols = X.select_dtypes(exclude=['object']).columns.tolist()
 
-#creating pre-processing pipeline
-    preprocessor = ColumnTransformer(
-        transformers=[
-           ("num", StandardScaler(), numeric_cols),
-           ("cat", OneHotEncoder(handle_unknown="ignore", sparse=False), categorical_cols)
-        ],
-        remainder="passthrough"  # keep numeric columns as-is
-    )
+# Split data (time-aware, ordered)
+n_rows = len(X)
+split_index = int(n_rows * 0.8)
+X_train, X_test = X.iloc[:split_index], X.iloc[split_index:]
+y_train, y_test = y.iloc[:split_index], y.iloc[split_index:]
 
-#model pipeline
-scale_pos_weight = len(y[y == 0]) / len(y[y == 1])
-    
-xgb_pipeline = Pipeline(steps=[
+# Preprocessing pipeline
+preprocessor = ColumnTransformer(
+    transformers=[
+        ("num", StandardScaler(), numeric_cols),
+        ("cat", OneHotEncoder(handle_unknown="ignore", sparse_output=False), categorical_cols)
+    ]
+)
+
+# Model pipeline
+scale_pos_weight = len(y_train[y_train == 0]) / len(y_train[y_train == 1])
+model_pipeline = Pipeline(steps=[
     ("preprocessor", preprocessor),
     ("classifier", XGBClassifier(
         n_estimators=100,
@@ -48,18 +53,13 @@ xgb_pipeline = Pipeline(steps=[
     ))
 ])
 
-# making sure time order is covered and assuming time is implied in row order, to avoid data leakage
-n_rows = len(dup_add)
-split_index = int(n_rows * 0.8)  # Use 80% for training, 20% for testing
-
-X_train, y_train = X.iloc[:split_index], y.iloc[:split_index]
-
-# Fit the model
-if 'model' not in st.session_state: #save trained model so it doesn't have to constantly retrain
+# Train once per session
+if 'model' not in st.session_state:
     st.session_state.model = model_pipeline.fit(X_train, y_train)
 
 model = st.session_state.model
 
+# Sidebar inputs
 with st.sidebar:
     st.header('Input features')
     age = st.slider('Age (yrs)', 17, 98, 25)
@@ -74,38 +74,39 @@ with st.sidebar:
     campaign = st.slider('Campaign Contacts so Far', 1, 43, 20)
     pdays = st.slider('Days Since Last Contact', -1, 999, 200)
     poutcome = st.selectbox('Previous Outcome', dup_add['poutcome'].unique())
-    emp_var_rate = st.slider('Employment Variation Rate', -3.4, 1.4, 5)
-    cons_price_idx = st.slider('Consumer Price Index', 80, 100, 85)
-    cons_conf_idx = st.slider('Consumer Confidence Index', -100, 100, 0)
-    euribor3m = st.slider('Euribor 3m', -1, 1, 0)
-    nr_employed = st.slider('NR.Employed', 4000, 6000, 5000)
+    emp_var_rate = st.slider('Employment Variation Rate', -3.4, 1.4, 0.0)
+    cons_price_idx = st.slider('Consumer Price Index', 80.0, 100.0, 93.2)
+    cons_conf_idx = st.slider('Consumer Confidence Index', -100.0, 100.0, -40.0)
+    euribor3m = st.slider('Euribor 3m', 0.0, 6.0, 4.0)
+    nr_employed = st.slider('NR.Employed', 4000, 6000, 5191)
 
-
+# Predict button
 if st.button("Predict Likelihood of Subscription"):
-    # Convert user input into DataFrame
+    # Input DataFrame
     input_data = pd.DataFrame({
-        'age' : [age]
-        'job' : [job]
-        'marital' : [marital]
-        'education' : [education]
-        'housing' : [housing]
-        'loan' : [month]
-        'month' : [month]
-        'day_of_week' : [day_of_week]
-        'duration' : [duration]
-        'campaign' : [campaign]
-        'pdays' : [pdays]
-        'poutcome' : [poutcome]
-        'emp.var.rate' : ['emp_var_rate']
-        'cons.price.idx' : ['cons_price_idx']
-        'cons.conf.idx' : ['cons_conf_idx']
-        'euribor3m' : [euribor3m]
-        'nr.employed' : ['nr_employed'] 
+        'age': [age],
+        'job': [job],
+        'marital': [marital],
+        'education': [education],
+        'housing': [housing],
+        'loan': [loan],
+        'month': [month],
+        'day_of_week': [day_of_week],
+        'duration': [duration],
+        'campaign': [campaign],
+        'pdays': [pdays],
+        'poutcome': [poutcome],
+        'emp.var.rate': [emp_var_rate],
+        'cons.price.idx': [cons_price_idx],
+        'cons.conf.idx': [cons_conf_idx],
+        'euribor3m': [euribor3m],
+        'nr.employed': [nr_employed]
     })
 
-prediction = model_pipeline.predict_proba(input_df)[0][1]
-    result = "Likely to Subscribe ✅" if prediction >= 0.3 else "Not Likely to Subscribe ❌"
+    # Make prediction
+    prediction = model.predict_proba(input_data)[0][1]
+    result = "✅ Likely to Subscribe" if prediction >= 0.3 else "❌ Not Likely to Subscribe"
 
-    st.subheader("Prediction:")
+    st.subheader("Prediction Result")
     st.write(f"**Probability of Subscription:** {prediction:.2%}")
     st.write(result)
