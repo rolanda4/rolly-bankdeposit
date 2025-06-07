@@ -14,6 +14,11 @@ st.info('This app predicts the likelihood that a person will subscribe to a bank
 # Load dataset
 dup_add = pd.read_csv('https://raw.githubusercontent.com/rolanda4/rolly-bankdeposit/refs/heads/main/cleaned_add_full.csv')
 
+# Prepare features and target
+features_to_drop = ['default', 'contact', 'previous']
+X = dup_add.drop(columns=features_to_drop + ['y'])
+y = dup_add['y']
+
 # --- Sidebar Inputs ---
 with st.sidebar:
     st.header('Input features')
@@ -56,11 +61,6 @@ if st.button("Predict Likelihood of Subscription"):
         'euribor3m': [euribor3m],
         'nr.employed': [nr_employed]
     })
-
-# Prepare features and target
-features_to_drop = ['default', 'contact', 'previous']
-X = dup_add.drop(columns=features_to_drop + ['y'])
-y = dup_add['y']
 
 # Identify column types
 categorical_cols = X.select_dtypes(include=['object']).columns.tolist()
