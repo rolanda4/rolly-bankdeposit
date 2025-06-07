@@ -8,7 +8,7 @@ import joblib  # For saving/loading the model
 
 st.title('💹 Bank Deposit Subscription Predictor')
 
-st.info('This app predicts the likelihood of loan default given certain parameters!')
+st.info('This app predicts the likelihood that a person will subscribe to a bank deposit given certain parameters!')
 
 # Load and process data
 df = pd.read_csv('https://raw.githubusercontent.com/rolanda4/stream/refs/heads/main/cleaned_dataset.csv')
