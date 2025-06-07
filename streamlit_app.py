@@ -1,37 +1,35 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
+import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
 import joblib
 
 st.title('💶 Bank Deposit Subscription Predictor')
-st.info('This app predicts the likelihood that a person will subscribe to a bank deposit!')
+st.info('This app predicts the likelihood that a person will subscribe to a bank deposit given certain parameters!')
 
-# Load and prepare dataset
+# Load dataset
 df = pd.read_csv('https://raw.githubusercontent.com/rolanda4/rolly-bankdeposit/refs/heads/main/cleaned_add_full.csv')
-features_to_drop = ['default', 'contact', 'previous']
-df = df.drop(columns=features_to_drop)
 
-X_raw = df.drop('y', axis=1)
-y_raw = df['y'].apply(lambda x: 1 if x == 'yes' else 0)
+# Drop unused features
+df = df.drop(columns=['default', 'contact', 'previous'])
+X_raw = df.drop(columns=['y'])
+y_raw = df['y'].apply(lambda x: 1 if x == 'yes' else 0)  # Binary encoding
 
-# Train model once and save
-if 'xgb_model.pkl' not in st.session_state:
+# Model training and saving
+if 'model_xgb.pkl' not in st.session_state:
     X_encoded = pd.get_dummies(X_raw)
     X_train, X_test, y_train, y_test = train_test_split(X_encoded, y_raw, test_size=0.2, shuffle=False)
-    
+
+    # Scale numeric features
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
-    
-    positive = len(y_train[y_train == 1])
-    negative = len(y_train[y_train == 0])
-    if positive == 0:
-        scale_pos_weight = 1  # or choose a small value like 0.1
-    else:
-        scale_pos_weight = negative / positive
 
+    # Compute class imbalance
+    scale_pos_weight = len(y_train[y_train == 0]) / len(y_train[y_train == 1])
+
+    # Train model
     model = XGBClassifier(
         n_estimators=100,
         max_depth=4,
@@ -43,13 +41,14 @@ if 'xgb_model.pkl' not in st.session_state:
     )
     model.fit(X_train_scaled, y_train)
 
-    joblib.dump((model, scaler, X_train.columns), 'xgb_model.pkl')
-    st.session_state['xgb_model'] = 'xgb_model.pkl'
+    # Save model and components
+    joblib.dump((model, scaler, X_encoded.columns), 'model_xgb.pkl')
+    st.session_state['model_xgb.pkl'] = 'model_xgb.pkl'
 
-# Load model, scaler, and feature columns
-model, scaler, feature_cols = joblib.load(st.session_state['xgb_model'])
+# Load trained model
+model, scaler, feature_cols = joblib.load(st.session_state['model_xgb.pkl'])
 
-# --- Sidebar Inputs ---
+# Sidebar Inputs
 with st.sidebar:
     st.header('Input features')
     age = st.slider('Age (yrs)', 17, 98, 25)
@@ -70,35 +69,39 @@ with st.sidebar:
     euribor3m = st.slider('Euribor 3m', 0.0, 6.0, 4.0)
     nr_employed = st.slider('NR.Employed', 4000, 6000, 5191)
 
-# --- Prediction ---
+# Prediction
 if st.button("Predict Likelihood of Subscription"):
-    input_df = pd.DataFrame({
-        'age': [age],
-        'job': [job],
-        'marital': [marital],
-        'education': [education],
-        'housing': [housing],
-        'loan': [loan],
-        'month': [month],
-        'day_of_week': [day_of_week],
-        'duration': [duration],
-        'campaign': [campaign],
-        'pdays': [pdays],
-        'poutcome': [poutcome],
-        'emp.var.rate': [emp_var_rate],
-        'cons.price.idx': [cons_price_idx],
-        'cons.conf.idx': [cons_conf_idx],
-        'euribor3m': [euribor3m],
-        'nr.employed': [nr_employed]
-    })
+    input_df = pd.DataFrame([{
+        'age': age,
+        'job': job,
+        'marital': marital,
+        'education': education,
+        'housing': housing,
+        'loan': loan,
+        'month': month,
+        'day_of_week': day_of_week,
+        'duration': duration,
+        'campaign': campaign,
+        'pdays': pdays,
+        'poutcome': poutcome,
+        'emp.var.rate': emp_var_rate,
+        'cons.price.idx': cons_price_idx,
+        'cons.conf.idx': cons_conf_idx,
+        'euribor3m': euribor3m,
+        'nr.employed': nr_employed
+    }])
 
+    # Encode and align columns
     input_encoded = pd.get_dummies(input_df)
     input_encoded = input_encoded.reindex(columns=feature_cols, fill_value=0)
+
+    # Scale numeric features
     input_scaled = scaler.transform(input_encoded)
 
-    prediction = model.predict(input_scaled)[0]
-    prediction_proba = model.predict_proba(input_scaled)[0][1]
+    # Predict
+    prediction = model.predict_proba(input_scaled)[0][1]
+    result = "✅ Likely to Subscribe" if prediction >= 0.3 else "❌ Not Likely to Subscribe"
 
     st.subheader("Prediction Result")
-    st.write(f"**Probability of Subscription:** {prediction_proba:.2%}")
-    st.write("✅ Likely to Subscribe" if prediction_proba >= 0.3 else "❌ Not Likely to Subscribe")
+    st.write(f"**Probability of Subscription:** {prediction:.2%}")
+    st.write(result)
