@@ -100,9 +100,9 @@ if 'model' not in st.session_state:
 model = st.session_state.model
 
 # --- Prediction ---
-    prediction = model.predict_proba(input_data)[0][1]
-    result = "✅ Likely to Subscribe" if prediction >= 0.3 else "❌ Not Likely to Subscribe"
+prediction = model.predict_proba(input_data)[0][1]
+result = "✅ Likely to Subscribe" if prediction >= 0.3 else "❌ Not Likely to Subscribe"
 
-    st.subheader("Prediction Result")
-    st.write(f"**Probability of Subscription:** {prediction:.2%}")
-    st.write(result)
+st.subheader("Prediction Result")
+st.write(f"**Probability of Subscription:** {prediction:.2%}")
+st.write(result)
