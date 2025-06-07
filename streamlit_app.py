@@ -25,7 +25,13 @@ if 'xgb_model.pkl' not in st.session_state:
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     
-    scale_pos_weight = len(y_train[y_train == 0]) / len(y_train[y_train == 1])
+    positive = len(y_train[y_train == 1])
+    negative = len(y_train[y_train == 0])
+    if positive == 0:
+        scale_pos_weight = 1  # or choose a small value like 0.1
+    else:
+        scale_pos_weight = negative / positive
+
     model = XGBClassifier(
         n_estimators=100,
         max_depth=4,
