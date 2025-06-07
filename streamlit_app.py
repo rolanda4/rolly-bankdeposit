@@ -70,39 +70,46 @@ numeric_cols = X.select_dtypes(exclude=['object']).columns.tolist()
 split_index = int(len(X) * 0.8)
 X_train, y_train = X.iloc[:split_index], y.iloc[:split_index]
 
-# Preprocessing and model pipeline
-preprocessor = ColumnTransformer(
-    transformers=[
-        ("num", StandardScaler(), numeric_cols),
-        ("cat", OneHotEncoder(handle_unknown="ignore", sparse_output=False), categorical_cols)
-    ]
-)
+st.write("Input data preview:")
+st.write(input_data)
 
-scale_pos_weight = len(y_train[y_train == 0]) / len(y_train[y_train == 1])
+st.write("Expected columns:")
+st.write(X_train.columns.tolist())
 
-model_pipeline = Pipeline(steps=[
-    ("preprocessor", preprocessor),
-    ("classifier", XGBClassifier(
-        n_estimators=100,
-        max_depth=4,
-        learning_rate=0.1,
-        use_label_encoder=False,
-        eval_metric="logloss",
-        scale_pos_weight=scale_pos_weight,
-        random_state=42
-    ))
-])
 
-# Train the model once per session
-if 'model' not in st.session_state:
-    st.session_state.model = model_pipeline.fit(X_train, y_train)
+# # Preprocessing and model pipeline
+# preprocessor = ColumnTransformer(
+#     transformers=[
+#         ("num", StandardScaler(), numeric_cols),
+#         ("cat", OneHotEncoder(handle_unknown="ignore", sparse_output=False), categorical_cols)
+#     ]
+# )
 
-model = st.session_state.model
+# scale_pos_weight = len(y_train[y_train == 0]) / len(y_train[y_train == 1])
 
-# --- Prediction ---
-prediction = model.predict_proba(input_data)[0][1]
-result = "✅ Likely to Subscribe" if prediction >= 0.3 else "❌ Not Likely to Subscribe"
+# model_pipeline = Pipeline(steps=[
+#     ("preprocessor", preprocessor),
+#     ("classifier", XGBClassifier(
+#         n_estimators=100,
+#         max_depth=4,
+#         learning_rate=0.1,
+#         use_label_encoder=False,
+#         eval_metric="logloss",
+#         scale_pos_weight=scale_pos_weight,
+#         random_state=42
+#     ))
+# ])
 
-st.subheader("Prediction Result")
-st.write(f"**Probability of Subscription:** {prediction:.2%}")
-st.write(result)
+# # Train the model once per session
+# if 'model' not in st.session_state:
+#     st.session_state.model = model_pipeline.fit(X_train, y_train)
+
+# model = st.session_state.model
+
+# # --- Prediction ---
+# prediction = model.predict_proba(input_data)[0][1]
+# result = "✅ Likely to Subscribe" if prediction >= 0.3 else "❌ Not Likely to Subscribe"
+
+# st.subheader("Prediction Result")
+# st.write(f"**Probability of Subscription:** {prediction:.2%}")
+# st.write(result)
