@@ -13,7 +13,7 @@ st.title('💹 Bank Deposit Subscription Predictor')
 st.info('This app predicts the likelihood that a person will subscribe to a bank deposit given certain parameters!')
 
 # Load data
-dup_add = pd.read_csv('https://github.com/rolanda4/rolly-bankdeposit/refs/heads/main/streamlit_app.py')
+dup_add = pd.read_csv('https://githubusercontent.com/rolanda4/rolly-bankdeposit/refs/heads/main/streamlit_app.py')
 
 # Split features and target
 features_to_drop2 = ['default', 'contact', 'previous']
