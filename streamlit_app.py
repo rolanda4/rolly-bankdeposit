@@ -14,6 +14,49 @@ st.info('This app predicts the likelihood that a person will subscribe to a bank
 # Load dataset
 dup_add = pd.read_csv('https://raw.githubusercontent.com/rolanda4/rolly-bankdeposit/refs/heads/main/cleaned_add_full.csv')
 
+# --- Sidebar Inputs ---
+with st.sidebar:
+    st.header('Input features')
+    age = st.slider('Age (yrs)', 17, 98, 25)
+    job = st.selectbox('Job', sorted(dup_add['job'].unique()))
+    marital = st.selectbox('Marital', sorted(dup_add['marital'].unique()))
+    education = st.selectbox('Education', sorted(dup_add['education'].unique()))
+    housing = st.selectbox('Housing', sorted(dup_add['housing'].unique()))
+    loan = st.selectbox('Loan', sorted(dup_add['loan'].unique()))
+    month = st.selectbox('Month', sorted(dup_add['month'].unique()))
+    day_of_week = st.selectbox('Day of Week', sorted(dup_add['day_of_week'].unique()))
+    duration = st.slider('Call Duration (secs)', 0, 4918, 1000)
+    campaign = st.slider('Campaign Contacts so Far', 1, 43, 20)
+    pdays = st.slider('Days Since Last Contact', -1, 999, 200)
+    poutcome = st.selectbox('Previous Outcome', sorted(dup_add['poutcome'].unique()))
+    emp_var_rate = st.slider('Employment Variation Rate', -3.4, 1.4, 0.0)
+    cons_price_idx = st.slider('Consumer Price Index', 80.0, 100.0, 93.2)
+    cons_conf_idx = st.slider('Consumer Confidence Index', -100.0, 100.0, -40.0)
+    euribor3m = st.slider('Euribor 3m', 0.0, 6.0, 4.0)
+    nr_employed = st.slider('NR.Employed', 4000, 6000, 5191)
+
+#inputting app entries into a dataframe
+if st.button("Predict Likelihood of Subscription"):
+    input_data = pd.DataFrame({
+        'age': [age],
+        'job': [job],
+        'marital': [marital],
+        'education': [education],
+        'housing': [housing],
+        'loan': [loan],
+        'month': [month],
+        'day_of_week': [day_of_week],
+        'duration': [duration],
+        'campaign': [campaign],
+        'pdays': [pdays],
+        'poutcome': [poutcome],
+        'emp.var.rate': [emp_var_rate],
+        'cons.price.idx': [cons_price_idx],
+        'cons.conf.idx': [cons_conf_idx],
+        'euribor3m': [euribor3m],
+        'nr.employed': [nr_employed]
+    })
+
 # Prepare features and target
 features_to_drop = ['default', 'contact', 'previous']
 X = dup_add.drop(columns=features_to_drop + ['y'])
@@ -56,49 +99,7 @@ if 'model' not in st.session_state:
 
 model = st.session_state.model
 
-# --- Sidebar Inputs ---
-with st.sidebar:
-    st.header('Input features')
-    age = st.slider('Age (yrs)', 17, 98, 25)
-    job = st.selectbox('Job', sorted(dup_add['job'].unique()))
-    marital = st.selectbox('Marital', sorted(dup_add['marital'].unique()))
-    education = st.selectbox('Education', sorted(dup_add['education'].unique()))
-    housing = st.selectbox('Housing', sorted(dup_add['housing'].unique()))
-    loan = st.selectbox('Loan', sorted(dup_add['loan'].unique()))
-    month = st.selectbox('Month', sorted(dup_add['month'].unique()))
-    day_of_week = st.selectbox('Day of Week', sorted(dup_add['day_of_week'].unique()))
-    duration = st.slider('Call Duration (secs)', 0, 4918, 1000)
-    campaign = st.slider('Campaign Contacts so Far', 1, 43, 20)
-    pdays = st.slider('Days Since Last Contact', -1, 999, 200)
-    poutcome = st.selectbox('Previous Outcome', sorted(dup_add['poutcome'].unique()))
-    emp_var_rate = st.slider('Employment Variation Rate', -3.4, 1.4, 0.0)
-    cons_price_idx = st.slider('Consumer Price Index', 80.0, 100.0, 93.2)
-    cons_conf_idx = st.slider('Consumer Confidence Index', -100.0, 100.0, -40.0)
-    euribor3m = st.slider('Euribor 3m', 0.0, 6.0, 4.0)
-    nr_employed = st.slider('NR.Employed', 4000, 6000, 5191)
-
 # --- Prediction ---
-if st.button("Predict Likelihood of Subscription"):
-    input_data = pd.DataFrame({
-        'age': [age],
-        'job': [job],
-        'marital': [marital],
-        'education': [education],
-        'housing': [housing],
-        'loan': [loan],
-        'month': [month],
-        'day_of_week': [day_of_week],
-        'duration': [duration],
-        'campaign': [campaign],
-        'pdays': [pdays],
-        'poutcome': [poutcome],
-        'emp.var.rate': [emp_var_rate],
-        'cons.price.idx': [cons_price_idx],
-        'cons.conf.idx': [cons_conf_idx],
-        'euribor3m': [euribor3m],
-        'nr.employed': [nr_employed]
-    })
-
     prediction = model.predict_proba(input_data)[0][1]
     result = "✅ Likely to Subscribe" if prediction >= 0.3 else "❌ Not Likely to Subscribe"
 
