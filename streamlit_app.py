@@ -41,12 +41,15 @@ if 'model_xgb.pkl' not in st.session_state:
     )
     model.fit(X_train_scaled, y_train)
 
-    # Save model and components
-    joblib.dump((model, scaler, X_encoded.columns), 'model_xgb.pkl')
-    st.session_state['model_xgb.pkl'] = 'model_xgb.pkl'
+    st.session_state['model'] = model
+st.session_state['scaler'] = scaler
+st.session_state['feature_cols'] = X_encoded.columns
 
-# Load trained model
-model, scaler, feature_cols = joblib.load(st.session_state['model_xgb.pkl'])
+# Load from session
+model = st.session_state['model']
+scaler = st.session_state['scaler']
+feature_cols = st.session_state['feature_cols']
+
 
 # Sidebar Inputs
 with st.sidebar:
