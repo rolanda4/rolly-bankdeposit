@@ -59,4 +59,12 @@ df = pd.read_csv('https://raw.githubusercontent.com/rolanda4/rolly-bankdeposit/r
 # Drop unused features
 df = df.drop(columns=['default', 'contact', 'previous'])
 
-df
+# making sure time order is covered and assuming time is implied in row order, to avoid data leakage
+n_rows = len(df)
+split_index = int(n_rows * 0.8)  # Use 80% for training, 20% for testing
+
+train_df = df.iloc[:split_index]
+test_df = df.iloc[split_index:]
+
+train_df
+test_df
