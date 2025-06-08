@@ -56,4 +56,7 @@ if st.button("Predict Likelihood of Subscription"):
 # Load dataset
 df = pd.read_csv('https://raw.githubusercontent.com/rolanda4/rolly-bankdeposit/refs/heads/main/cleaned_add_full.csv')
 
+# Drop unused features
+df = df.drop(columns=['default', 'contact', 'previous'])
+
 df
