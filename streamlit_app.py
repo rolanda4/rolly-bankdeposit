@@ -13,8 +13,8 @@ st.info('This app predicts the likelihood that a person will subscribe to a bank
 with st.sidebar:
     st.header('Input features')
     age = st.slider('Age (yrs)', 17, 98, 25)
-    job = st.selectbox('Job', ('admin','unknown','unemployed','management','housemaid','entrepreneur','student','blue-collar',
-                               'self-employed','retired','technician','services'))
+    job = st.selectbox('Job', ('admin' , 'unknown' , 'unemployed' , 'management' , 'housemaid' , 'entrepreneur' , 'student' ,
+                               'blue-collar' , 'self-employed' , 'retired' , 'technician' , 'services'))
     marital = st.selectbox('Marital', sorted(df['marital'].unique()))
     education = st.selectbox('Education', sorted(df['education'].unique()))
     housing = st.selectbox('Housing', sorted(df['housing'].unique()))
