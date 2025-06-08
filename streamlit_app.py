@@ -16,7 +16,7 @@ with st.sidebar:
     job = st.selectbox('Job', ('admin' , 'unknown' , 'unemployed' , 'management' , 'housemaid' , 'entrepreneur' , 'student' ,
                                'blue-collar' , 'self-employed' , 'retired' , 'technician' , 'services'))
     marital = st.selectbox('Marital', ('married' , 'divorced' , 'single'))
-    # education = st.selectbox('Education', sorted(df['education'].unique()))
+    education = st.selectbox('Education', ('unknown' , 'secondary' , 'primary' , 'tertiary'))
     # housing = st.selectbox('Housing', sorted(df['housing'].unique()))
     # loan = st.selectbox('Loan', sorted(df['loan'].unique()))
     # month = st.selectbox('Month', sorted(df['month'].unique()))
