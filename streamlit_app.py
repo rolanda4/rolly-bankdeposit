@@ -31,3 +31,24 @@ with st.sidebar:
     euribor3m = st.slider('Euribor 3m', 0.0, 6.0, 4.0)
     nr_employed = st.slider('NR.Employed', 4000, 6000, 5191)
 
+#input entries into a dataframe
+if st.button("Predict Likelihood of Subscription"):
+    input_df = pd.DataFrame([{
+        'age': age,
+        'job': job,
+        'marital': marital,
+        'education': education,
+        'housing': housing,
+        'loan': loan,
+        'month': month,
+        'day_of_week': day_of_week,
+        'duration': duration,
+        'campaign': campaign,
+        'pdays': pdays,
+        'poutcome': poutcome,
+        'emp.var.rate': emp_var_rate,
+        'cons.price.idx': cons_price_idx,
+        'cons.conf.idx': cons_conf_idx,
+        'euribor3m': euribor3m,
+        'nr.employed': nr_employed
+    }])
