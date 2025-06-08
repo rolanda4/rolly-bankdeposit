@@ -106,30 +106,22 @@ if 'model_xgb.pkl' not in st.session_state:
     st.session_state['scaler'] = scaler
     st.session_state['feature_cols'] = X_train_encoded.columns
 
-# Load from session
+        # Load from session
 model = st.session_state['model']
 scaler = st.session_state['scaler']
 feature_cols = st.session_state['feature_cols']
 
          # Encode and align columns
-    input_encoded = pd.get_dummies(input_df)
-    input_encoded = input_encoded.reindex(columns=feature_cols, fill_value=0)
+input_encoded = pd.get_dummies(input_df)
+input_encoded = input_encoded.reindex(columns=feature_cols, fill_value=0)
 
          # Scale numeric features
-    input_scaled = scaler.transform(input_encoded)
+input_scaled = scaler.transform(input_encoded)
 
         # Predict
-    prediction = model.predict_proba(input_scaled)[0][1]
-    result = "✅ Likely to Subscribe" if prediction >= 0.3 else "❌ Not Likely to Subscribe"
+prediction = model.predict_proba(input_scaled)[0][1]
+result = "✅ Likely to Subscribe" if prediction >= 0.3 else "❌ Not Likely to Subscribe"
 
-    st.subheader("Prediction Result")
-    st.write(f"**Probability of Subscription:** {prediction:.2%}")
-    st.write(result)
-
-
-
-
-
-
-
-
+st.subheader("Prediction Result")
+st.write(f"**Probability of Subscription:** {prediction:.2%}")
+st.write(result)
