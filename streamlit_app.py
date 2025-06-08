@@ -59,23 +59,60 @@ df = pd.read_csv('https://raw.githubusercontent.com/rolanda4/rolly-bankdeposit/r
 # Drop unused features
 df = df.drop(columns=['default', 'contact', 'previous'])
 
-# making sure time order is covered and assuming time is implied in row order, to avoid data leakage
-n_rows = len(df)
-split_index = int(n_rows * 0.8)  # Use 80% for training, 20% for testing
+# Model training and saving
+if 'model_xgb.pkl' not in st.session_state:
+        # making sure time order is covered and assuming time is implied in row order, to avoid data leakage
+    n_rows = len(df)
+    split_index = int(n_rows * 0.8)  # Use 80% for training, 20% for testing
+    
+    train_df = df.iloc[:split_index]
+    test_df = df.iloc[split_index:]
+    
+    X_train_raw = train_df.drop(columns=['y'])
+    y_train = train_df['y'].apply(lambda x: 1 if x == 'yes' else 0)  # Binary encoding
+    
+    X_test_raw = test_df.drop(columns=['y'])
+    y_test = test_df['y'].apply(lambda x: 1 if x == 'yes' else 0)  # Binary encoding
 
-train_df = df.iloc[:split_index]
-test_df = df.iloc[split_index:]
+        # One-hot encode 
+    X_train_encoded = pd.get_dummies(X_train_raw)
+    X_test_encoded = pd.get_dummies(X_test_raw)
 
-X_train = train_df.drop(columns=['y'])
-y_train = train_df['y'].apply(lambda x: 1 if x == 'yes' else 0)  # Binary encoding
+        # Align columns to ensure test matches train
+    X_test_encoded = X_test_encoded.reindex(columns=X_train_encoded.columns, fill_value=0)
 
-X_test = test_df.drop(columns=['y'])
-y_test = test_df['y'].apply(lambda x: 1 if x == 'yes' else 0)  # Binary encoding
+        # Scaling numeric features
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train_encoded)
+    X_test_scaled = scaler.transform(X_test_encoded)
 
-st.info('Train')
-X_train
-y_train
+        # Handling class imbalance
+    scale_pos_weight = len(y_train[y_train == 0]) / len(y_train[y_train == 1])
 
-st.info('Test')
-X_test
-y_test
+         # Train the model
+    model = XGBClassifier(
+        n_estimators=100,
+        max_depth=4,
+        learning_rate=0.1,
+        use_label_encoder=False,
+        eval_metric="logloss",
+        scale_pos_weight=scale_pos_weight,
+        random_state=42
+    )
+    model.fit(X_train_scaled, y_train)
+
+    # Store in session
+    st.session_state['model'] = model
+    st.session_state['scaler'] = scaler
+    st.session_state['feature_cols'] = X_train_encoded.columns
+
+# Load from session
+model = st.session_state['model']
+scaler = st.session_state['scaler']
+feature_cols = st.session_state['feature_cols']
+
+
+
+
+
+
