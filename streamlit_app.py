@@ -15,7 +15,7 @@ with st.sidebar:
     age = st.slider('Age (yrs)', 17, 98, 25)
     job = st.selectbox('Job', ('admin' , 'unknown' , 'unemployed' , 'management' , 'housemaid' , 'entrepreneur' , 'student' ,
                                'blue-collar' , 'self-employed' , 'retired' , 'technician' , 'services'))
-    marital = st.selectbox('Marital', ('married' , 'divorced, , 'single'))
+    marital = st.selectbox('Marital', ('married' , 'divorced' , 'single'))
     # education = st.selectbox('Education', sorted(df['education'].unique()))
     # housing = st.selectbox('Housing', sorted(df['housing'].unique()))
     # loan = st.selectbox('Loan', sorted(df['loan'].unique()))
