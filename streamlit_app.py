@@ -52,3 +52,6 @@ if st.button("Predict Likelihood of Subscription"):
         'euribor3m': euribor3m,
         'nr.employed': nr_employed
     }])
+
+# Load dataset
+df = pd.read_csv('https://raw.githubusercontent.com/rolanda4/rolly-bankdeposit/refs/heads/main/cleaned_add_full.csv')
