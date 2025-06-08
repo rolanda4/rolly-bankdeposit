@@ -60,7 +60,7 @@ df = pd.read_csv('https://raw.githubusercontent.com/rolanda4/rolly-bankdeposit/r
 df = df.drop(columns=['default', 'contact', 'previous'])
 
 # Model training and saving
-if 'model_xgb.pkl' not in st.session_state:
+if 'model' not in st.session_state:
         # making sure time order is covered and assuming time is implied in row order, to avoid data leakage
     n_rows = len(df)
     split_index = int(n_rows * 0.8)  # Use 80% for training, 20% for testing
