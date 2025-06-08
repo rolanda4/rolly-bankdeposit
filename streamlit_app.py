@@ -66,5 +66,16 @@ split_index = int(n_rows * 0.8)  # Use 80% for training, 20% for testing
 train_df = df.iloc[:split_index]
 test_df = df.iloc[split_index:]
 
-train_df
-test_df
+X_train = train_df.drop(columns=['y'])
+y_train = train_df['y'].apply(lambda x: 1 if x == 'yes' else 0)  # Binary encoding
+
+X_test = test_df.drop(columns=['y'])
+y_test = test_df['y'].apply(lambda x: 1 if x == 'yes' else 0)  # Binary encoding
+
+st.info(Train)
+X_train
+y_train
+
+st.info(Test)
+X_test
+y_test
