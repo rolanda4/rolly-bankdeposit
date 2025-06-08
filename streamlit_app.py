@@ -72,10 +72,10 @@ y_train = train_df['y'].apply(lambda x: 1 if x == 'yes' else 0)  # Binary encodi
 X_test = test_df.drop(columns=['y'])
 y_test = test_df['y'].apply(lambda x: 1 if x == 'yes' else 0)  # Binary encoding
 
-st.info(Train)
+st.info('Train')
 X_train
 y_train
 
-st.info(Test)
+st.info('Test')
 X_test
 y_test
