@@ -31,28 +31,6 @@ with st.sidebar:
     euribor3m = st.slider('Euribor 3m', 0.0, 6.0, 4.0)
     nr_employed = st.slider('NR.Employed', 4000, 6000, 5191)
 
-#input entries into a dataframe
-if st.button("Predict Likelihood of Subscription"):
-    input_df = pd.DataFrame([{
-        'age': age,
-        'job': job,
-        'marital': marital,
-        'education': education,
-        'housing': housing,
-        'loan': loan,
-        'month': month,
-        'day_of_week': day_of_week,
-        'duration': duration,
-        'campaign': campaign,
-        'pdays': pdays,
-        'poutcome': poutcome,
-        'emp.var.rate': emp_var_rate,
-        'cons.price.idx': cons_price_idx,
-        'cons.conf.idx': cons_conf_idx,
-        'euribor3m': euribor3m,
-        'nr.employed': nr_employed
-    }])
-
 # Load dataset
 df = pd.read_csv('https://raw.githubusercontent.com/rolanda4/rolly-bankdeposit/refs/heads/main/cleaned_add_full.csv')
 
@@ -111,17 +89,39 @@ model = st.session_state['model']
 scaler = st.session_state['scaler']
 feature_cols = st.session_state['feature_cols']
 
-         # Encode and align columns
-input_encoded = pd.get_dummies(input_df)
-input_encoded = input_encoded.reindex(columns=feature_cols, fill_value=0)
+        #input entries into a dataframe
+if st.button("Predict Likelihood of Subscription"):
+    input_df = pd.DataFrame([{
+        'age': age,
+        'job': job,
+        'marital': marital,
+        'education': education,
+        'housing': housing,
+        'loan': loan,
+        'month': month,
+        'day_of_week': day_of_week,
+        'duration': duration,
+        'campaign': campaign,
+        'pdays': pdays,
+        'poutcome': poutcome,
+        'emp.var.rate': emp_var_rate,
+        'cons.price.idx': cons_price_idx,
+        'cons.conf.idx': cons_conf_idx,
+        'euribor3m': euribor3m,
+        'nr.employed': nr_employed
+    }])
 
-         # Scale numeric features
-input_scaled = scaler.transform(input_encoded)
-
-        # Predict
-prediction = model.predict_proba(input_scaled)[0][1]
-result = "✅ Likely to Subscribe" if prediction >= 0.3 else "❌ Not Likely to Subscribe"
-
-st.subheader("Prediction Result")
-st.write(f"**Probability of Subscription:** {prediction:.2%}")
-st.write(result)
+             # Encode and align columns
+    input_encoded = pd.get_dummies(input_df)
+    input_encoded = input_encoded.reindex(columns=feature_cols, fill_value=0)
+    
+             # Scale numeric features
+    input_scaled = scaler.transform(input_encoded)
+    
+            # Predict
+    prediction = model.predict_proba(input_scaled)[0][1]
+    result = "✅ Likely to Subscribe" if prediction >= 0.3 else "❌ Not Likely to Subscribe"
+    
+    st.subheader("Prediction Result")
+    st.write(f"**Probability of Subscription:** {prediction:.2%}")
+    st.write(result)
